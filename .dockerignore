@@ -1,0 +1,60 @@
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# Docker meta (no need to copy into image)
+Dockerfile
+.dockerignore
+
+# Virtual environment
+venv/
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Claude Code session files
+.claude/
+
+# Documentation (not needed at runtime)
+*.md
+*.docx
+DEPLOYMENT.md
+README.md
+API_DOCUMENTATION.md
+FRONTEND_INTEGRATION.md
+
+# Utility scripts not part of the API
+md_to_docx.py
+upload_to_hf.py
+download_model.py
+docker-compose.yml
+
+# Example env file (never goes into image)
+.env.example
+.env
+.env.*
+
+# Railway-specific config (not needed in Docker)
+railway.toml
+nixpacks.toml
+
+# Dev/test artefacts
+predictions.json
+*.ipynb
+.ipynb_checkpoints/
+*.log
+nul
+
+# IDE
+.vscode/
+.idea/
+
+# Model weights — downloaded at runtime from Hugging Face, not baked into image
+final_model7/
+label_mappings.pkl
+lemma_dict.pkl

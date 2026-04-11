@@ -1,86 +1,25 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-pip-wheel-metadata/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
 # Virtual Environment
 venv/
-env/
-ENV/
-.venv
+/venv/
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
-
-# Jupyter Notebook
-.ipynb_checkpoints
-*.ipynb
+# Python cache
+__pycache__/
+*.pyc
 
 # Environment variables
 .env
 .env.local
 .env.*.local
 
+# IDE and OS specific
+.idea/
+.vscode/
+*.DS_Store
+Thumbs.db
+
+# Jupyter notebooks
+*.ipynb
+.ipynb_checkpoints/
+
 # Logs
 *.log
-logs/
-
-# Model files - Using Git LFS for production model files
-# Exclude temporary/training models but allow production models via LFS
-
-# Production model files are tracked via Git LFS (see .gitattributes)
-# We allow: label_mappings.pkl, lemma_dict.pkl, final_model7/
-# But exclude other model directories
-final_model/
-models/
-checkpoints/
-
-# Data files
-*.csv
-*.json
-!package*.json
-!tsconfig*.json
-!railway.json
-!final_model7/*.json
-
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-
-# OS
-Thumbs.db
-.DS_Store
-
-# Railway
-.railway/
-
-# Temporary files
-*.tmp
-temp/
-tmp/

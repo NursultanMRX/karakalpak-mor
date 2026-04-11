@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  karakalpak-api:
+    image: karakalpak-api:latest
+    container_name: karakalpak-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount the pre-downloaded model directory into the container.
+      # Run download_model.py on the VPS first:
+      #   python3 download_model.py --token hf_xxxx --dest /opt/karakalpak-model
+      - /opt/karakalpak-model/final_model7:/app/final_model7:ro
+      - /opt/karakalpak-model/label_mappings.pkl:/app/label_mappings.pkl:ro
+      - /opt/karakalpak-model/lemma_dict.pkl:/app/lemma_dict.pkl:ro
+    env_file:
+      - .env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PORT=8000
+    # Hard limits — keeps the container from consuming the full VPS on a burst
+    deploy:
+      resources:
+        limits:
+          memory: 6g        # leaves ~2 GB for OS + DB on an 8 GB VPS
+          cpus: "4.0"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      start_period: 120s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
