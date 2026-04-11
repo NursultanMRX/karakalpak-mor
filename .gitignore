@@ -23,3 +23,20 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Model files — hosted on Hugging Face, not in git
+final_model7/
+label_mappings.pkl
+lemma_dict.pkl
+*.safetensors
+*.pkl
+*.pt
+*.bin
+
+# Deployment files not needed in repo
+DEPLOYMENT_CHECKLIST.md
+MODEL_SETUP.md
+Procfile
+USAGE.txt
+nixpacks.toml
+runtime.txt
