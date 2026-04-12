@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   karakalpak-api:
     image: karakalpak-api:latest
