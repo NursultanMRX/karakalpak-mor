@@ -1,0 +1,40 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+
+            cd /opt/karakalpak
+
+            # Pull latest code
+            git pull origin main
+
+            # Rebuild image only if Dockerfile or requirements changed
+            if git diff HEAD@{1} --name-only | grep -qE "Dockerfile|requirements.txt"; then
+              echo "Dockerfile or requirements changed — rebuilding image..."
+              docker build -t karakalpak-api:latest .
+            else
+              echo "No image rebuild needed."
+            fi
+
+            # Restart container
+            docker compose down
+            docker compose up -d
+
+            # Wait and check health
+            sleep 10
+            curl -sf http://localhost:8000/health && echo "Deploy successful!" || echo "Health check failed!"
