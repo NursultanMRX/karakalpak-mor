@@ -34,16 +34,13 @@ const EXAMPLES = [
   'Karakalpaqstan Respublikası Ózbekstan quramında.',
 ]
 
-// Key morph features to show on card (without clicking)
-const KEY_MORPH = ['Case', 'Number', 'Tense', 'Person', 'Degree']
-
 export default function App() {
   const [text, setText]         = useState('')
   const [results, setResults]   = useState(null)
   const [loading, setLoading]   = useState(false)
   const [error, setError]       = useState(null)
-  const [selected, setSelected] = useState(null)
-  const textareaRef = useRef(null)
+  const [selected, setSelected] = useState(null) // { sentenceIdx, wordIdx }
+  const resultsRef = useRef(null)
 
   const analyze = useCallback(async (input) => {
     const query = (input ?? text).trim()
@@ -61,6 +58,8 @@ export default function App() {
         { headers, timeout: 30000 }
       )
       setResults(data)
+      // Scroll to results on mobile
+      setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
     } catch (e) {
       if (e.response?.status === 401) setError('API açqışı nátúrıs. Administratorǵa múrájaat etiń.')
       else if (e.response?.status === 429) setError('Sorawnlar sánı asıp ketti. Bir ázden soń qayta urınıp kóriń.')
@@ -74,72 +73,78 @@ export default function App() {
   const clear = () => { setText(''); setResults(null); setError(null); setSelected(null) }
   const loadExample = (ex) => { setText(ex); setResults(null); setError(null); setSelected(null) }
 
+  const handleWordClick = (sentenceIdx, wordIdx) => {
+    if (selected?.sentenceIdx === sentenceIdx && selected?.wordIdx === wordIdx) {
+      setSelected(null)
+    } else {
+      setSelected({ sentenceIdx, wordIdx })
+    }
+  }
+
+  // Group words by sentence_index
+  const sentences = results ? groupBySentence(results.words) : []
+
   return (
     <div className="layout">
 
       {/* ── Header ── */}
-      <header className="topbar">
-        <div className="topbar-brand">
+      <header className="header">
+        <div className="brand">
           <div className="brand-icon">KK</div>
           <span className="brand-name">KKGrammar</span>
         </div>
-        <div className="topbar-sub">Qaraqalpaq tili grammatika tallaw sisteması</div>
+        <span className="brand-sub">Qaraqalpaq tili grammatika tallaw</span>
       </header>
 
-      {/* ── Split ── */}
-      <div className="split-wrap">
-        <div className="split">
+      {/* ── Content ── */}
+      <div className="main-content">
 
-          {/* LEFT — input */}
-          <div className="pane pane-left">
-            <div className="pane-header">
-              <span className="pane-lang">Qaraqalpaqsha mátin</span>
-              <button className="btn-clear" onClick={clear} title="Tazalaw">✕</button>
-            </div>
-
-            <textarea
-              ref={textareaRef}
-              className="main-textarea"
-              value={text}
-              onChange={e => setText(e.target.value)}
-              onKeyDown={handleKey}
-              placeholder="Mátinińizdi usı jerge jazıń..."
-              disabled={loading}
-              spellCheck={false}
-            />
-
-            <div className="pane-footer">
-              <div className="examples-label">Mısallar:</div>
-              <div className="examples">
-                {EXAMPLES.map((ex, i) => (
-                  <button key={i} className="example-chip" onClick={() => loadExample(ex)}>
-                    {ex.length > 36 ? ex.slice(0, 36) + '…' : ex}
-                  </button>
-                ))}
-              </div>
-              <div className="footer-actions">
-                <span className="char-count">{text.length} harp</span>
-                <button
-                  className="btn-analyze"
-                  onClick={() => analyze()}
-                  disabled={loading || !text.trim()}
-                >
-                  {loading
-                    ? <><span className="spin" /> Tallanıp atır…</>
-                    : 'Tallawdan ótkeriw →'}
+        {/* Input card */}
+        <div className="card">
+          <div className="card-label">Mátin kiritw</div>
+          <textarea
+            className="main-textarea"
+            value={text}
+            onChange={e => setText(e.target.value)}
+            onKeyDown={handleKey}
+            placeholder="Mátinińizdi usı jerge jazıń..."
+            disabled={loading}
+            spellCheck={false}
+          />
+          <div className="card-footer">
+            <div className="examples-label">Mısallar:</div>
+            <div className="examples">
+              {EXAMPLES.map((ex, i) => (
+                <button key={i} className="example-chip" onClick={() => loadExample(ex)}>
+                  {ex.length > 40 ? ex.slice(0, 40) + '…' : ex}
                 </button>
+              ))}
+            </div>
+            <div className="footer-actions">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span className="char-count">{text.length} harp</span>
+                {text && (
+                  <button className="btn-clear" onClick={clear} title="Tazalaw">✕</button>
+                )}
               </div>
-              <div className="hint">Ctrl+Enter — tez tallawdan ótkeriw</div>
+              <button
+                className="btn-analyze"
+                onClick={() => analyze()}
+                disabled={loading || !text.trim()}
+              >
+                {loading
+                  ? <><span className="spin" /> Tallanıp atır…</>
+                  : 'Tallawdan ótkeriw →'}
+              </button>
             </div>
           </div>
+        </div>
 
-          {/* Divider */}
-          <div className="divider" />
-
-          {/* RIGHT — results */}
-          <div className="pane pane-right">
-            <div className="pane-header">
-              <span className="pane-lang">Tallawdan ótkeriw nátiyjeleri</span>
+        {/* Results card */}
+        {(results || loading || error) && (
+          <div className="card" ref={resultsRef}>
+            <div className="results-header">
+              <span className="results-title">Tallawdan ótkeriw nátiyjeleri</span>
               {results && (
                 <div className="result-stats">
                   <span className="stat-chip">{results.word_count} sóz</span>
@@ -148,104 +153,116 @@ export default function App() {
               )}
             </div>
 
-            <div className="result-body">
-              {!results && !loading && !error && (
-                <div className="placeholder">
-                  <div className="placeholder-icon">◈</div>
-                  <p>Nátiyje usı jerde kórsetiledi</p>
-                  <p className="placeholder-hint">Mátin jazıp «Tallawdan ótkeriw» basıń</p>
-                </div>
-              )}
+            {loading && (
+              <div className="placeholder">
+                <div className="loading-spinner" />
+                <p>Tallanıp atır…</p>
+              </div>
+            )}
 
-              {loading && (
-                <div className="placeholder">
-                  <div className="loading-spinner" />
-                  <p>Tallanıp atır…</p>
-                </div>
-              )}
+            {error && (
+              <div className="error-banner">⚠ {error}</div>
+            )}
 
-              {error && (
-                <div className="error-banner">⚠ {error}</div>
-              )}
-
-              {results && (
-                <>
-                  {/* Word cards */}
-                  <div className="word-chips">
-                    {results.words?.map((w, i) => {
-                      const keyMorph = KEY_MORPH
-                        .map(k => w.morph?.[k])
-                        .filter(Boolean)
+            {results && sentences.map((words, sIdx) => (
+              <div key={sIdx}>
+                {/* Sentence row */}
+                <div className="sentence-block">
+                  <div className="sentence-label">Sóylem #{sIdx + 1}</div>
+                  <div className="sentence-words">
+                    {words.map((w, wIdx) => {
+                      const isActive = selected?.sentenceIdx === sIdx && selected?.wordIdx === wIdx
                       return (
-                        <button
-                          key={i}
-                          className={`word-chip ${selected === i ? 'active' : ''}`}
-                          style={{ '--pos-color': POS_COLORS[w.pos] || '#667eea' }}
-                          onClick={() => setSelected(selected === i ? null : i)}
+                        <div
+                          key={wIdx}
+                          className={`word-unit ${isActive ? 'active' : ''}`}
+                          style={{ '--pos-color': POS_COLORS[w.pos] || '#78716c' }}
+                          onClick={() => handleWordClick(sIdx, wIdx)}
                         >
-                          <span className="chip-word">{w.word}</span>
-                          <span className="chip-pos">{w.pos}</span>
-                          <span className="chip-pos-name">{POS_LABELS[w.pos] || w.pos}</span>
-                          {w.lemma && w.lemma !== w.word && (
-                            <span className="chip-lemma">↳ {w.lemma}</span>
-                          )}
-                          {keyMorph.length > 0 && (
-                            <span className="chip-morph">{keyMorph.join(' · ')}</span>
-                          )}
-                        </button>
+                          <span className="word-text">{w.word}</span>
+                          <span className="word-pos-label">{w.pos}</span>
+                        </div>
                       )
                     })}
+                    <span className="word-punct">.</span>
                   </div>
+                </div>
 
-                  {/* Detail panel */}
-                  {selected !== null && results.words[selected] && (() => {
-                    const w = results.words[selected]
-                    const morphEntries = Object.entries(w.morph || {}).filter(([, v]) => v && v !== '-')
-                    return (
-                      <div className="detail-panel">
-                        <div className="detail-header">
-                          <span className="detail-word">{w.word}</span>
-                          <span className="detail-pos-badge" style={{ background: POS_COLORS[w.pos] || '#667eea' }}>
-                            {w.pos} — {w.pos_name || POS_LABELS[w.pos] || w.pos}
-                          </span>
-                        </div>
-                        <div className="detail-rows">
-                          <div className="detail-row">
-                            <span className="detail-key">Lemma</span>
-                            <span className="detail-val">{w.lemma || '—'}</span>
-                          </div>
-                          <div className="detail-row">
-                            <span className="detail-key">Sóylem</span>
-                            <span className="detail-val">#{w.sentence_index + 1}, {w.word_index + 1}-sóz</span>
-                          </div>
-                        </div>
-                        {morphEntries.length > 0 && (
-                          <>
-                            <div className="detail-section-title">Morfologiyalıq belgiler</div>
-                            <div className="morph-grid">
-                              {morphEntries.map(([k, v]) => (
-                                <div key={k} className="morph-cell">
-                                  <div className="morph-k">{k}</div>
-                                  <div className="morph-v">{v}</div>
-                                </div>
-                              ))}
-                            </div>
-                          </>
-                        )}
+                {/* Detail panel — shown below the sentence that contains the selected word */}
+                {selected?.sentenceIdx === sIdx && (() => {
+                  const w = words[selected.wordIdx]
+                  if (!w) return null
+                  const morphEntries = Object.entries(w.morph || {}).filter(([, v]) => v && v !== '-')
+                  return (
+                    <div className="detail-panel">
+                      <div className="detail-header">
+                        <span className="detail-word">{w.word}</span>
+                        <span
+                          className="detail-pos-badge"
+                          style={{ background: POS_COLORS[w.pos] || '#78716c' }}
+                        >
+                          {w.pos} — {w.pos_name || POS_LABELS[w.pos] || w.pos}
+                        </span>
                       </div>
-                    )
-                  })()}
+                      <div className="detail-rows">
+                        <div className="detail-row">
+                          <span className="detail-key">Lemma</span>
+                          <span className="detail-val">{w.lemma || '—'}</span>
+                        </div>
+                        <div className="detail-row">
+                          <span className="detail-key">Orın</span>
+                          <span className="detail-val">#{sIdx + 1} sóylem, {w.word_index + 1}-sóz</span>
+                        </div>
+                      </div>
+                      {morphEntries.length > 0 && (
+                        <>
+                          <div className="detail-section-title">Morfologiyalıq belgiler</div>
+                          <div className="morph-grid">
+                            {morphEntries.map(([k, v]) => (
+                              <div key={k} className="morph-cell">
+                                <div className="morph-k">{k}</div>
+                                <div className="morph-v">{v}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )
+                })()}
+              </div>
+            ))}
 
-                  {selected === null && (
-                    <p className="click-hint">Tolıq morfologiyalıq belgilerdi kóriw ushın sózdi basıń</p>
-                  )}
-                </>
-              )}
+            {results && selected === null && (
+              <p className="click-hint">Tolıq morfologiyalıq belgilerdi kóriw ushın sózdi basıń</p>
+            )}
+          </div>
+        )}
+
+        {/* Initial placeholder */}
+        {!results && !loading && !error && (
+          <div className="card">
+            <div className="placeholder">
+              <div className="placeholder-icon">◈</div>
+              <p>Nátiyje usı jerde kórsetiledi</p>
+              <p className="placeholder-hint">Mátin jazıp «Tallawdan ótkeriw» basıń</p>
             </div>
           </div>
+        )}
 
-        </div>
       </div>
     </div>
   )
+}
+
+function groupBySentence(words) {
+  if (!words?.length) return []
+  const map = {}
+  for (const w of words) {
+    const si = w.sentence_index ?? 0
+    if (!map[si]) map[si] = []
+    map[si].push(w)
+  }
+  const keys = Object.keys(map).map(Number).sort((a, b) => a - b)
+  return keys.map(k => map[k])
 }
