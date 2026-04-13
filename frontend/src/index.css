@@ -6,6 +6,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: #faf7f2;
   color: #292524;
+  overflow-x: hidden;
 }
 
 /* ── Header ── */
@@ -328,9 +329,11 @@ body {
   border: 1px solid #e7d5be;
   border-radius: 8px;
   padding: 7px 10px;
+  min-width: 0;
+  overflow: hidden;
 }
 .morph-k { font-size: 0.62rem; color: #c9b99a; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 2px; word-break: break-word; overflow-wrap: break-word; }
-.morph-v { font-size: 0.85rem; color: #292524; font-weight: 700; }
+.morph-v { font-size: 0.85rem; color: #292524; font-weight: 700; word-break: break-word; overflow-wrap: break-word; }
 
 .click-hint {
   font-size: 0.78rem;
