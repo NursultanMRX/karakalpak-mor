@@ -1,22 +1,39 @@
-```
-# Dependencies
-node_modules/
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 
-# Build artifacts
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Model files — on Hugging Face
+final_model7/
+label_mappings.pkl
+lemma_dict.pkl
+*.safetensors
+*.pkl
+*.pt
+*.bin
+
+# Frontend
+frontend/node_modules/
 frontend/dist/
+frontend/.vite/
 
-# Environment variables
-.env*
-!.env.example
-
-# IDE files
+# IDE
 .vscode/
 .idea/
+*.DS_Store
+Thumbs.db
 
 # Logs
 *.log
 
-# OS generated files
-.DS_Store
-Thumbs.db
-```
+# Misc
+.ipynb_checkpoints/
+*.ipynb
