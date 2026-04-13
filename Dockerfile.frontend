@@ -33,7 +33,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Backend code
 COPY --chown=appuser:appuser main.py .
-COPY --chown=appuser:appuser download_model.py .
 
 # Built frontend → served at /static by FastAPI
 COPY --from=frontend-builder --chown=appuser:appuser /app/frontend/dist ./static
