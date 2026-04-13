@@ -320,7 +320,7 @@ body {
 
 .morph-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   gap: 6px;
 }
 .morph-cell {
@@ -329,7 +329,7 @@ body {
   border-radius: 8px;
   padding: 7px 10px;
 }
-.morph-k { font-size: 0.62rem; color: #c9b99a; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 2px; }
+.morph-k { font-size: 0.62rem; color: #c9b99a; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 2px; word-break: break-word; overflow-wrap: break-word; }
 .morph-v { font-size: 0.85rem; color: #292524; font-weight: 700; }
 
 .click-hint {
