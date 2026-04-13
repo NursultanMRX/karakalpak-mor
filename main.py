@@ -486,9 +486,10 @@ async def limit_request_body(request: Request, call_next):
 # Rate limiting middleware
 @app.middleware("http")
 async def rate_limit_middleware(request: Request, call_next):
-    # Skip rate limiting for health checks and docs
+    # Skip rate limiting for health checks, docs, and static frontend files
+    path = request.url.path
     skip_paths = {"/health", "/", "/docs", "/redoc", "/openapi.json"}
-    if request.url.path not in skip_paths:
+    if path not in skip_paths and not path.startswith("/assets/") and not path.startswith("/static/"):
         client_ip = request.client.host if request.client else "unknown"
         try:
             _check_rate_limit(client_ip)
