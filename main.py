@@ -21,6 +21,7 @@ import logging
 import time
 from typing import List, Optional, Dict, Any
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 import torch
 from torch import nn
@@ -28,7 +29,7 @@ from fastapi import FastAPI, HTTPException, Query, Request, Security, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.security import APIKeyHeader
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse, HTMLResponse
 from pydantic import BaseModel, Field, field_validator, model_validator
 from transformers import AutoTokenizer, XLMRobertaConfig, XLMRobertaModel
 from safetensors.torch import load_file as load_safetensors
@@ -40,6 +41,7 @@ MODEL_DIR = os.environ.get("MODEL_DIR", "final_model7")
 LABELS_PATH = os.environ.get("LABELS_PATH", "label_mappings.pkl")
 LEMMA_PATH = os.environ.get("LEMMA_PATH", "lemma_dict.pkl")
 BACKBONE = os.environ.get("BACKBONE", "xlm-roberta-base")
+STATIC_DIR = os.environ.get("STATIC_DIR", "static")
 
 # Production settings
 ALLOWED_ORIGINS = os.environ.get("ALLOWED_ORIGINS", "*").split(",")
@@ -511,6 +513,32 @@ async def log_requests(request: Request, call_next):
         request.method, request.url.path, response.status_code, process_time
     )
     return response
+
+
+# ---------------------------
+# Static file serving for frontend
+# ---------------------------
+static_path = Path(STATIC_DIR)
+
+@app.get("/")
+async def serve_frontend():
+    """Serve the frontend index.html"""
+    index_file = static_path / "index.html"
+    if index_file.exists():
+        return FileResponse(str(index_file))
+    return HTMLResponse(
+        content="<h1>Frontend not found. Please build the frontend first.</h1>",
+        status_code=404
+    )
+
+
+@app.get("/{path:path}")
+async def serve_static_files(path: str):
+    """Serve static files (CSS, JS, etc.)"""
+    file_path = static_path / path
+    if file_path.exists() and file_path.is_file():
+        return FileResponse(str(file_path))
+    raise HTTPException(status_code=404, detail="File not found")
 
 
 # ---------------------------

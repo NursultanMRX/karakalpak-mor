@@ -1,42 +1,22 @@
-# Virtual Environment
-venv/
-/venv/
+```
+# Dependencies
+node_modules/
 
-# Python cache
-__pycache__/
-*.pyc
+# Build artifacts
+frontend/dist/
 
 # Environment variables
-.env
-.env.local
-.env.*.local
+.env*
+!.env.example
 
-# IDE and OS specific
-.idea/
+# IDE files
 .vscode/
-*.DS_Store
-Thumbs.db
-
-# Jupyter notebooks
-*.ipynb
-.ipynb_checkpoints/
+.idea/
 
 # Logs
 *.log
 
-# Model files — hosted on Hugging Face, not in git
-final_model7/
-label_mappings.pkl
-lemma_dict.pkl
-*.safetensors
-*.pkl
-*.pt
-*.bin
-
-# Deployment files not needed in repo
-DEPLOYMENT_CHECKLIST.md
-MODEL_SETUP.md
-Procfile
-USAGE.txt
-nixpacks.toml
-runtime.txt
+# OS generated files
+.DS_Store
+Thumbs.db
+```

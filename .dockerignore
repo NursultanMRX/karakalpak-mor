@@ -6,6 +6,7 @@
 # Docker meta (no need to copy into image)
 Dockerfile
 .dockerignore
+Dockerfile.frontend
 
 # Virtual environment
 venv/
@@ -58,3 +59,8 @@ nul
 final_model7/
 label_mappings.pkl
 lemma_dict.pkl
+
+# Frontend source code (built version is copied via multi-stage build)
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/

@@ -1,3 +1,21 @@
+# Multi-stage build with frontend support
+FROM node:20-alpine AS frontend-builder
+
+WORKDIR /app/frontend
+
+# Copy package files
+COPY frontend/package*.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy source code
+COPY frontend/ ./
+
+# Build the application
+RUN npm run build
+
+# Production Stage
 FROM python:3.11-slim
 
 # Security: run as non-root
@@ -15,6 +33,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code and model files (owned by appuser from the start)
 COPY --chown=appuser:appuser . .
+
+# Copy built frontend from builder stage
+COPY --from=frontend-builder --chown=appuser:appuser /app/frontend/dist ./static
 
 USER appuser
 
