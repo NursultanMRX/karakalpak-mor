@@ -31,14 +31,17 @@ const POS_COLORS = {
 const EXAMPLES = [
   'Men mektepke baraman.',
   'Ol kitap oqıydı. Biz universitet studentlerimiz.',
-  'Karakalpaqstan RespublikasıÓzbekstan quraмında.',
+  'Karakalpaqstan Respublikası Ózbekstan quramında.',
 ]
 
+// Key morph features to show on card (without clicking)
+const KEY_MORPH = ['Case', 'Number', 'Tense', 'Person', 'Degree']
+
 export default function App() {
-  const [text, setText]       = useState('')
-  const [results, setResults] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError]     = useState(null)
+  const [text, setText]         = useState('')
+  const [results, setResults]   = useState(null)
+  const [loading, setLoading]   = useState(false)
+  const [error, setError]       = useState(null)
   const [selected, setSelected] = useState(null)
   const textareaRef = useRef(null)
 
@@ -59,154 +62,166 @@ export default function App() {
       )
       setResults(data)
     } catch (e) {
-      if (e.response?.status === 401) setError('Invalid API key.')
-      else if (e.response?.status === 429) setError('Rate limit reached. Try again in a moment.')
-      else setError(e.response?.data?.detail || e.message || 'Request failed')
+      if (e.response?.status === 401) setError('API açqışı nátúrıs. Administratorǵa múrájaat etiń.')
+      else if (e.response?.status === 429) setError('Sorawnlar sánı asıp ketti. Bir ázden soń qayta urınıp kóriń.')
+      else setError(e.response?.data?.detail || e.message || 'Qayta islew múmkin bolmadı.')
     } finally {
       setLoading(false)
     }
   }, [text])
 
-  const handleKey = (e) => {
-    if (e.key === 'Enter' && e.ctrlKey) analyze()
-  }
-
+  const handleKey = (e) => { if (e.key === 'Enter' && e.ctrlKey) analyze() }
   const clear = () => { setText(''); setResults(null); setError(null); setSelected(null) }
-
-  const loadExample = (ex) => { setText(ex); setResults(null); setError(null) }
+  const loadExample = (ex) => { setText(ex); setResults(null); setError(null); setSelected(null) }
 
   return (
     <div className="layout">
+
       {/* ── Header ── */}
       <header className="topbar">
         <div className="topbar-brand">
           <div className="brand-icon">KK</div>
           <span className="brand-name">KKGrammar</span>
         </div>
-        <div className="topbar-sub">Karakalpaq tili tahlilshısı</div>
+        <div className="topbar-sub">Qaraqalpaq tili grammatika tallaw sisteması</div>
       </header>
 
-      {/* ── Main split pane ── */}
+      {/* ── Split ── */}
       <div className="split-wrap">
-      <div className="split">
-        {/* LEFT — input */}
-        <div className="pane pane-left">
-          <div className="pane-header">
-            <span className="pane-lang">Qaraqalpaqsha</span>
-            <button className="btn-clear" onClick={clear} title="Clear">✕</button>
-          </div>
+        <div className="split">
 
-          <textarea
-            ref={textareaRef}
-            className="main-textarea"
-            value={text}
-            onChange={e => setText(e.target.value)}
-            onKeyDown={handleKey}
-            placeholder="Mátinди bul jerge jazıń..."
-            disabled={loading}
-            spellCheck={false}
-          />
+          {/* LEFT — input */}
+          <div className="pane pane-left">
+            <div className="pane-header">
+              <span className="pane-lang">Qaraqalpaqsha mátin</span>
+              <button className="btn-clear" onClick={clear} title="Tazalaw">✕</button>
+            </div>
 
-          <div className="pane-footer">
-            <div className="examples">
-              {EXAMPLES.map((ex, i) => (
-                <button key={i} className="example-chip" onClick={() => loadExample(ex)}>
-                  {ex.length > 32 ? ex.slice(0, 32) + '…' : ex}
+            <textarea
+              ref={textareaRef}
+              className="main-textarea"
+              value={text}
+              onChange={e => setText(e.target.value)}
+              onKeyDown={handleKey}
+              placeholder="Mátinińizdi usı jerge jazıń..."
+              disabled={loading}
+              spellCheck={false}
+            />
+
+            <div className="pane-footer">
+              <div className="examples-label">Mısallar:</div>
+              <div className="examples">
+                {EXAMPLES.map((ex, i) => (
+                  <button key={i} className="example-chip" onClick={() => loadExample(ex)}>
+                    {ex.length > 36 ? ex.slice(0, 36) + '…' : ex}
+                  </button>
+                ))}
+              </div>
+              <div className="footer-actions">
+                <span className="char-count">{text.length} harp</span>
+                <button
+                  className="btn-analyze"
+                  onClick={() => analyze()}
+                  disabled={loading || !text.trim()}
+                >
+                  {loading
+                    ? <><span className="spin" /> Tallanıp atır…</>
+                    : 'Tallawdan ótkeriw →'}
                 </button>
-              ))}
-            </div>
-            <div className="footer-actions">
-              <span className="char-count">{text.length} chars</span>
-              <button
-                className="btn-analyze"
-                onClick={() => analyze()}
-                disabled={loading || !text.trim()}
-              >
-                {loading ? <><span className="spin" />Analyzing…</> : 'Analyze →'}
-              </button>
+              </div>
+              <div className="hint">Ctrl+Enter — tez tallawdan ótkeriw</div>
             </div>
           </div>
-        </div>
 
-        {/* Divider */}
-        <div className="divider" />
+          {/* Divider */}
+          <div className="divider" />
 
-        {/* RIGHT — results */}
-        <div className="pane pane-right">
-          <div className="pane-header">
-            <span className="pane-lang">Tahlil nátijesi</span>
-            {results && (
-              <div className="result-stats">
-                <span className="stat-chip">{results.word_count} words</span>
-                <span className="stat-chip">{results.sentence_count} sentences</span>
-              </div>
-            )}
-          </div>
-
-          <div className="result-body">
-            {!results && !loading && !error && (
-              <div className="placeholder">
-                <div className="placeholder-icon">◈</div>
-                <p>Analysis results will appear here</p>
-                <p className="placeholder-hint">Ctrl+Enter to analyze</p>
-              </div>
-            )}
-
-            {loading && (
-              <div className="placeholder">
-                <div className="loading-spinner" />
-                <p>Analyzing…</p>
-              </div>
-            )}
-
-            {error && (
-              <div className="error-banner">
-                <span>⚠</span> {error}
-              </div>
-            )}
-
-            {results && (
-              <>
-                {/* Word chips — click to select */}
-                <div className="word-chips">
-                  {results.words?.map((w, i) => (
-                    <button
-                      key={i}
-                      className={`word-chip ${selected === i ? 'active' : ''}`}
-                      style={{ '--pos-color': POS_COLORS[w.pos] || '#667eea' }}
-                      onClick={() => setSelected(selected === i ? null : i)}
-                    >
-                      <span className="chip-word">{w.word}</span>
-                      <span className="chip-pos">{w.pos}</span>
-                    </button>
-                  ))}
+          {/* RIGHT — results */}
+          <div className="pane pane-right">
+            <div className="pane-header">
+              <span className="pane-lang">Tallawdan ótkeriw nátiyjeleri</span>
+              {results && (
+                <div className="result-stats">
+                  <span className="stat-chip">{results.word_count} sóz</span>
+                  <span className="stat-chip">{results.sentence_count} sóylem</span>
                 </div>
+              )}
+            </div>
 
-                {/* Detail panel for selected word */}
-                {selected !== null && results.words[selected] && (
-                  <div className="detail-panel">
-                    {(() => {
-                      const w = results.words[selected]
-                      const morphEntries = Object.entries(w.morph || {}).filter(([,v]) => v && v !== '-')
+            <div className="result-body">
+              {!results && !loading && !error && (
+                <div className="placeholder">
+                  <div className="placeholder-icon">◈</div>
+                  <p>Nátiyje usı jerde kórsetiledi</p>
+                  <p className="placeholder-hint">Mátin jazıp «Tallawdan ótkeriw» basıń</p>
+                </div>
+              )}
+
+              {loading && (
+                <div className="placeholder">
+                  <div className="loading-spinner" />
+                  <p>Tallanıp atır…</p>
+                </div>
+              )}
+
+              {error && (
+                <div className="error-banner">⚠ {error}</div>
+              )}
+
+              {results && (
+                <>
+                  {/* Word cards */}
+                  <div className="word-chips">
+                    {results.words?.map((w, i) => {
+                      const keyMorph = KEY_MORPH
+                        .map(k => w.morph?.[k])
+                        .filter(Boolean)
                       return (
-                        <>
-                          <div className="detail-header">
-                            <span className="detail-word">{w.word}</span>
-                            <span className="detail-pos-badge" style={{ background: POS_COLORS[w.pos] || '#667eea' }}>
-                              {w.pos} · {w.pos_name || POS_LABELS[w.pos] || w.pos}
-                            </span>
+                        <button
+                          key={i}
+                          className={`word-chip ${selected === i ? 'active' : ''}`}
+                          style={{ '--pos-color': POS_COLORS[w.pos] || '#667eea' }}
+                          onClick={() => setSelected(selected === i ? null : i)}
+                        >
+                          <span className="chip-word">{w.word}</span>
+                          <span className="chip-pos">{w.pos}</span>
+                          <span className="chip-pos-name">{POS_LABELS[w.pos] || w.pos}</span>
+                          {w.lemma && w.lemma !== w.word && (
+                            <span className="chip-lemma">↳ {w.lemma}</span>
+                          )}
+                          {keyMorph.length > 0 && (
+                            <span className="chip-morph">{keyMorph.join(' · ')}</span>
+                          )}
+                        </button>
+                      )
+                    })}
+                  </div>
+
+                  {/* Detail panel */}
+                  {selected !== null && results.words[selected] && (() => {
+                    const w = results.words[selected]
+                    const morphEntries = Object.entries(w.morph || {}).filter(([, v]) => v && v !== '-')
+                    return (
+                      <div className="detail-panel">
+                        <div className="detail-header">
+                          <span className="detail-word">{w.word}</span>
+                          <span className="detail-pos-badge" style={{ background: POS_COLORS[w.pos] || '#667eea' }}>
+                            {w.pos} — {w.pos_name || POS_LABELS[w.pos] || w.pos}
+                          </span>
+                        </div>
+                        <div className="detail-rows">
+                          <div className="detail-row">
+                            <span className="detail-key">Lemma</span>
+                            <span className="detail-val">{w.lemma || '—'}</span>
                           </div>
-                          <div className="detail-rows">
-                            <div className="detail-row">
-                              <span className="detail-key">Lemma</span>
-                              <span className="detail-val">{w.lemma || '—'}</span>
-                            </div>
-                            <div className="detail-row">
-                              <span className="detail-key">Sentence</span>
-                              <span className="detail-val">#{w.sentence_index + 1}, word #{w.word_index + 1}</span>
-                            </div>
+                          <div className="detail-row">
+                            <span className="detail-key">Sóylem</span>
+                            <span className="detail-val">#{w.sentence_index + 1}, {w.word_index + 1}-sóz</span>
                           </div>
-                          {morphEntries.length > 0 && (
+                        </div>
+                        {morphEntries.length > 0 && (
+                          <>
+                            <div className="detail-section-title">Morfologiyalıq belgiler</div>
                             <div className="morph-grid">
                               {morphEntries.map(([k, v]) => (
                                 <div key={k} className="morph-cell">
@@ -215,21 +230,21 @@ export default function App() {
                                 </div>
                               ))}
                             </div>
-                          )}
-                        </>
-                      )
-                    })()}
-                  </div>
-                )}
+                          </>
+                        )}
+                      </div>
+                    )
+                  })()}
 
-                {selected === null && (
-                  <p className="click-hint">Click any word to see full morphological analysis</p>
-                )}
-              </>
-            )}
+                  {selected === null && (
+                    <p className="click-hint">Tolıq morfologiyalıq belgilerdi kóriw ushın sózdi basıń</p>
+                  )}
+                </>
+              )}
+            </div>
           </div>
+
         </div>
-      </div>
       </div>
     </div>
   )
