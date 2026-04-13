@@ -516,32 +516,6 @@ async def log_requests(request: Request, call_next):
 
 
 # ---------------------------
-# Static file serving for frontend
-# ---------------------------
-static_path = Path(STATIC_DIR)
-
-@app.get("/")
-async def serve_frontend():
-    """Serve the frontend index.html"""
-    index_file = static_path / "index.html"
-    if index_file.exists():
-        return FileResponse(str(index_file))
-    return HTMLResponse(
-        content="<h1>Frontend not found. Please build the frontend first.</h1>",
-        status_code=404
-    )
-
-
-@app.get("/{path:path}")
-async def serve_static_files(path: str):
-    """Serve static files (CSS, JS, etc.)"""
-    file_path = static_path / path
-    if file_path.exists() and file_path.is_file():
-        return FileResponse(str(file_path))
-    raise HTTPException(status_code=404, detail="File not found")
-
-
-# ---------------------------
 # Pydantic models
 # ---------------------------
 class PredictRequest(BaseModel):
@@ -819,6 +793,10 @@ def _extract_sentences(req: PredictRequest) -> List[str]:
 # ---------------------------
 @app.get("/")
 def root():
+    # Serve frontend if built, otherwise return API info
+    index_file = Path(STATIC_DIR) / "index.html"
+    if index_file.exists():
+        return FileResponse(str(index_file))
     return {
         "name": "Karakalpak POS+Morph API",
         "version": "1.6",
@@ -1045,6 +1023,22 @@ async def words_flat(
         "word_count":     len(flat_words),
         "words":          flat_words,
     }
+
+
+# ---------------------------
+# Static file serving for frontend
+# MUST be last — catch-all /{path:path} would intercept API routes if registered early
+# ---------------------------
+static_path = Path(STATIC_DIR)
+
+@app.get("/{path:path}")
+async def serve_static_files(path: str):
+    """Serve static files (CSS, JS, etc.)"""
+    file_path = static_path / path
+    if file_path.exists() and file_path.is_file():
+        return FileResponse(str(file_path))
+    # Fall through to 404 — don't expose internal paths
+    raise HTTPException(status_code=404, detail="Not found")
 
 
 # ---------------------------
