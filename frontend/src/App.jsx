@@ -8,14 +8,14 @@ const POS_LABELS = {
   ALM:     'Almastıq',
   ARA_SZ:  'Aralas Sóz',
   ATLQ:    'Atlıq Esim',
-  DEM:     'Demonstrativ',
+  DEM:     'Kórsetkish Almasıq',
   FYL:     'Feyil',
   JLG:     'Jalǵaw',
   JRD_FYL: 'Járdemshi Feyil',
   KBT:     'Kómekshi Bet',
   RWS:     'Rawısh',
-  SNQ:     'Sanaq',
-  SYM:     'Sımvol',
+  SNQ:     'Sanaq Esim',
+  SYM:     'Belgili Sóz',
   TNS:     'Tańırqaw Sóz',
   TRK:     'Tirkemes',
 }
@@ -61,9 +61,9 @@ export default function App() {
       // Scroll to results on mobile
       setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
     } catch (e) {
-      if (e.response?.status === 401) setError('API açqışı nátúrıs. Administratorǵa múrájaat etiń.')
-      else if (e.response?.status === 429) setError('Sorawnlar sánı asıp ketti. Bir ázden soń qayta urınıp kóriń.')
-      else setError(e.response?.data?.detail || e.message || 'Qayta islew múmkin bolmadı.')
+      if (e.response?.status === 401) setError('API açqışı nátúrıs. Administratorǵa baylanısıń.')
+      else if (e.response?.status === 429) setError('Sorawnlar sánı asıp ketti. Bir ázden keyin qayta urınıp kóriń.')
+      else setError(e.response?.data?.detail || e.message || 'Mátin tallawdan ótkerip bolmadı.')
     } finally {
       setLoading(false)
     }
@@ -93,7 +93,7 @@ export default function App() {
           <div className="brand-icon">KK</div>
           <span className="brand-name">KKGrammar</span>
         </div>
-        <span className="brand-sub">Qaraqalpaq tili grammatika tallaw</span>
+        <span className="brand-sub">Qaraqalpaq tili grammatikalıq tallaw</span>
       </header>
 
       {/* ── Content ── */}
@@ -101,13 +101,13 @@ export default function App() {
 
         {/* Input card */}
         <div className="card">
-          <div className="card-label">Mátin kiritw</div>
+          <div className="card-label">Mátin kiritiń</div>
           <textarea
             className="main-textarea"
             value={text}
             onChange={e => setText(e.target.value)}
             onKeyDown={handleKey}
-            placeholder="Mátinińizdi usı jerge jazıń..."
+            placeholder="Qaraqalpaqsha mátinińizdi usı jerge jazıń..."
             disabled={loading}
             spellCheck={false}
           />
@@ -134,7 +134,7 @@ export default function App() {
               >
                 {loading
                   ? <><span className="spin" /> Tallanıp atır…</>
-                  : 'Tallawdan ótkeriw →'}
+                  : 'Tallawǵa jiberiw →'}
               </button>
             </div>
           </div>
@@ -144,7 +144,7 @@ export default function App() {
         {(results || loading || error) && (
           <div className="card" ref={resultsRef}>
             <div className="results-header">
-              <span className="results-title">Tallawdan ótkeriw nátiyjeleri</span>
+              <span className="results-title">Grammatikalıq tallaw nátiyjeleri</span>
               {results && (
                 <div className="result-stats">
                   <span className="stat-chip">{results.word_count} sóz</span>
@@ -211,7 +211,7 @@ export default function App() {
                         </div>
                         <div className="detail-row">
                           <span className="detail-key">Orın</span>
-                          <span className="detail-val">#{sIdx + 1} sóylem, {w.word_index + 1}-sóz</span>
+                          <span className="detail-val">{sIdx + 1}-sóylem, {w.word_index + 1}-sóz</span>
                         </div>
                       </div>
                       {morphEntries.length > 0 && (
@@ -234,7 +234,7 @@ export default function App() {
             ))}
 
             {results && selected === null && (
-              <p className="click-hint">Tolıq morfologiyalıq belgilerdi kóriw ushın sózdi basıń</p>
+              <p className="click-hint">Morfologiyalıq belgilerdi kóriw ushın sózge basıń</p>
             )}
           </div>
         )}
@@ -245,7 +245,7 @@ export default function App() {
             <div className="placeholder">
               <div className="placeholder-icon">◈</div>
               <p>Nátiyje usı jerde kórsetiledi</p>
-              <p className="placeholder-hint">Mátin jazıp «Tallawdan ótkeriw» basıń</p>
+              <p className="placeholder-hint">Mátin jazıp «Tallawǵa jiberiw» basıń</p>
             </div>
           </div>
         )}
