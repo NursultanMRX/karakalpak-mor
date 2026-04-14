@@ -28,10 +28,30 @@ const POS_COLORS = {
   TRK:     '#047857',
 }
 
+// Morph key corrections: fix model typos + replace underscores with spaces
+const MORPH_KEY_FIXES = {
+  'SEPLET':            'SEPLIK',
+  'TRKENISH':          'TIRKEWISH',
+  'TRKENÍSH':          'TIRKEWISH',
+  'DEMOSTRATIV':       'KÓRSETKISH',
+  'DEMOSTRATTIV':      'KÓRSETKISH',
+  'IYELIK_BET':        'IYELIK BETI',
+  'IYELIK_QOSIMTASI':  'IYELIK QOSIMTASI',
+  'IYELIK_SAN':        'IYELIK SANI',
+  'KÓPLIK_QOSIMTASI':  'KÓPLIK QOSIMTASI',
+  'ORIN_QOSIMTASI':    'ORÍN QOSIMTASI',
+  'FEYIL_FORMASI':     'FEYIL FORMASI',
+  'SIFATLASTIRIW_QOSIMTASI': 'SIFATLASTIRIW QOSIMTASI',
+  'SIFATLASTIRIWSHI':  'SIFATLASTIRIWSHI',
+}
+function morphKeyLabel(k) {
+  return (MORPH_KEY_FIXES[k] || k).replace(/_/g, ' ')
+}
+
 const EXAMPLES = [
   'Men mektepke baraman.',
   'Ol kitap oqıydı. Biz universitet studentlerimiz.',
-  'Karakalpaqstan Respublikası Ózbekstan quramında.',
+  'Qaraqalpaqstan Respublikası Ózbekistan quramında.',
 ]
 
 export default function App() {
@@ -58,7 +78,6 @@ export default function App() {
         { headers, timeout: 30000 }
       )
       setResults(data)
-      // Scroll to results on mobile
       setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
     } catch (e) {
       if (e.response?.status === 401) setError('API açqışı nátúrıs. Administratorǵa baylanısıń.')
@@ -81,7 +100,6 @@ export default function App() {
     }
   }
 
-  // Group words by sentence_index
   const sentences = results ? groupBySentence(results.words) : []
 
   return (
@@ -101,13 +119,13 @@ export default function App() {
 
         {/* Input card */}
         <div className="card">
-          <div className="card-label">Mátin kiritiń</div>
+          <div className="card-label">Mátin kiritiw</div>
           <textarea
             className="main-textarea"
             value={text}
             onChange={e => setText(e.target.value)}
             onKeyDown={handleKey}
-            placeholder="Qaraqalpaqsha mátinińizdi usı jerge jazıń..."
+            placeholder="Mátindi usı jerge jazıń..."
             disabled={loading}
             spellCheck={false}
           />
@@ -122,7 +140,7 @@ export default function App() {
             </div>
             <div className="footer-actions">
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span className="char-count">{text.length} harp</span>
+                <span className="char-count">{text.length} hárip</span>
                 {text && (
                   <button className="btn-clear" onClick={clear} title="Tazalaw">✕</button>
                 )}
@@ -148,7 +166,7 @@ export default function App() {
               {results && (
                 <div className="result-stats">
                   <span className="stat-chip">{results.word_count} sóz</span>
-                  <span className="stat-chip">{results.sentence_count} sóylem</span>
+                  <span className="stat-chip">{results.sentence_count} gáp</span>
                 </div>
               )}
             </div>
@@ -166,9 +184,8 @@ export default function App() {
 
             {results && sentences.map((words, sIdx) => (
               <div key={sIdx}>
-                {/* Sentence row */}
                 <div className="sentence-block">
-                  <div className="sentence-label">Sóylem #{sIdx + 1}</div>
+                  <div className="sentence-label">Gáp #{sIdx + 1}</div>
                   <div className="sentence-words">
                     {words.map((w, wIdx) => {
                       const isActive = selected?.sentenceIdx === sIdx && selected?.wordIdx === wIdx
@@ -188,7 +205,6 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Detail panel — shown below the sentence that contains the selected word */}
                 {selected?.sentenceIdx === sIdx && (() => {
                   const w = words[selected.wordIdx]
                   if (!w) return null
@@ -210,8 +226,8 @@ export default function App() {
                           <span className="detail-val">{w.lemma || '—'}</span>
                         </div>
                         <div className="detail-row">
-                          <span className="detail-key">Orın</span>
-                          <span className="detail-val">{sIdx + 1}-sóylem, {w.word_index + 1}-sóz</span>
+                          <span className="detail-key">Ornı</span>
+                          <span className="detail-val">{sIdx + 1}-gáp, {w.word_index + 1}-sóz</span>
                         </div>
                       </div>
                       {morphEntries.length > 0 && (
@@ -220,7 +236,7 @@ export default function App() {
                           <div className="morph-grid">
                             {morphEntries.map(([k, v]) => (
                               <div key={k} className="morph-cell">
-                                <div className="morph-k">{k}</div>
+                                <div className="morph-k">{morphKeyLabel(k)}</div>
                                 <div className="morph-v">{v}</div>
                               </div>
                             ))}
@@ -245,7 +261,7 @@ export default function App() {
             <div className="placeholder">
               <div className="placeholder-icon">◈</div>
               <p>Nátiyje usı jerde kórsetiledi</p>
-              <p className="placeholder-hint">Mátin jazıp «Tallawǵa jiberiw» basıń</p>
+              <p className="placeholder-hint">Mátindi jazıp, «Tallawǵa jiberiw» túymesin basıń</p>
             </div>
           </div>
         )}
