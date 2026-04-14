@@ -111,7 +111,7 @@ export default function App() {
           <div className="brand-icon">KK</div>
           <span className="brand-name">KKGrammar</span>
         </div>
-        <span className="brand-sub">Qaraqalpaq tili grammatikalıq tallaw</span>
+        <span className="brand-sub">Qaraqalpaq tili grammatikalıq analizi</span>
       </header>
 
       {/* ── Content ── */}
@@ -119,7 +119,7 @@ export default function App() {
 
         {/* Input card */}
         <div className="card">
-          <div className="card-label">Mátin kiritiw</div>
+          <div className="card-label">Tekst kirgiziw</div>
           <textarea
             className="main-textarea"
             value={text}
@@ -152,7 +152,7 @@ export default function App() {
               >
                 {loading
                   ? <><span className="spin" /> Tallanıp atır…</>
-                  : 'Tallawǵa jiberiw →'}
+                  : 'Talqılawǵa jiberiw →'}
               </button>
             </div>
           </div>
@@ -162,7 +162,7 @@ export default function App() {
         {(results || loading || error) && (
           <div className="card" ref={resultsRef}>
             <div className="results-header">
-              <span className="results-title">Grammatikalıq tallaw nátiyjeleri</span>
+              <span className="results-title">Grammatikalıq analiz nátiyjeleri</span>
               {results && (
                 <div className="result-stats">
                   <span className="stat-chip">{results.word_count} sóz</span>
@@ -261,7 +261,7 @@ export default function App() {
             <div className="placeholder">
               <div className="placeholder-icon">◈</div>
               <p>Nátiyje usı jerde kórsetiledi</p>
-              <p className="placeholder-hint">Mátindi jazıp, «Tallawǵa jiberiw» túymesin basıń</p>
+              <p className="placeholder-hint">Tekstti jazıp, «Talqılawǵa jiberiw» túymesin basıń</p>
             </div>
           </div>
         )}
