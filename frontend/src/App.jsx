@@ -125,7 +125,7 @@ export default function App() {
             value={text}
             onChange={e => setText(e.target.value)}
             onKeyDown={handleKey}
-            placeholder="Mátindi usı jerge jazıń..."
+            placeholder="Tekstti usı jerge jazıń..."
             disabled={loading}
             spellCheck={false}
           />
